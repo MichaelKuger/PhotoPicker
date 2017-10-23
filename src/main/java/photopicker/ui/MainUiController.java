@@ -147,12 +147,9 @@ public class MainUiController implements Initializable, CopyTaskCreator {
 
     public void fileCopyFinished(File file) {
         filesCopied++;
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                filesCopiedProperty.set(filesCopied);
-                System.out.println(progressbar.progressProperty().getValue());
-            }
+        Platform.runLater(() -> {
+            filesCopiedProperty.set(filesCopied);
+            System.out.println(progressbar.progressProperty().getValue());
         });
     }
 

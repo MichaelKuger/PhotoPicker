@@ -32,14 +32,11 @@ public class Application extends javafx.application.Application {
             primaryStage.setScene(new Scene(root));
             primaryStage.show();
 
-            primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-                @Override
-                public void handle(WindowEvent event) {
-                    if (!ctrl.readyForShutdown()) {
-                        boolean close = showCloseDialog();
-                        if (!close) {
-                            event.consume();
-                        }
+            primaryStage.setOnCloseRequest(event -> {
+                if (!ctrl.readyForShutdown()) {
+                    boolean close = showCloseDialog();
+                    if (!close) {
+                        event.consume();
                     }
                 }
             });
@@ -58,9 +55,6 @@ public class Application extends javafx.application.Application {
         alert.getButtonTypes().setAll(buttonYes, buttonNo);
 
         Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == buttonNo) {
-            return false;
-        }
-        return true;
+        return result.get() != buttonNo;
     }
 }
