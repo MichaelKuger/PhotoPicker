@@ -1,12 +1,13 @@
 package photopicker.copy;
 
+import photopicker.imaging.ImageFile;
+import photopicker.imaging.ImagingException;
 import photopicker.ui.CopyTaskCreator;
 
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -14,7 +15,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class FileCopyManager {
 
     private final Set<File> filesCopied = new HashSet<File>();
-    private final LinkedBlockingQueue<File> copyQueue = new LinkedBlockingQueue<File>();
+    private final LinkedBlockingQueue<ImageFile> copyQueue = new LinkedBlockingQueue<>();
     private final CopyTaskCreator taskCreator;
     private final FileCopyWorker copyWorker = new FileCopyWorker();
 
@@ -23,14 +24,14 @@ public class FileCopyManager {
         copyWorker.start();
     }
 
-    public void add(File file) {
+    public void add(ImageFile image) {
         try {
-            if (filesCopied.contains(file)) {
-                taskCreator.fileCopyFinished(file);
+            if (filesCopied.contains(image.getFile())) {
+                taskCreator.fileCopyFinished(image.getFile());
                 return;
             }
-            copyQueue.put(file);
-            filesCopied.add(file);
+            copyQueue.put(image);
+            filesCopied.add(image.getFile());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -51,10 +52,10 @@ public class FileCopyManager {
             try {
                 while (!interrupted()) {
                     try {
-                        File copyFile = copyQueue.take();
-                        copyFile(copyFile);
+                        ImageFile image = copyQueue.take();
+                        copyFile(image);
                         System.out.println("Finished!");
-                        taskCreator.fileCopyFinished(copyFile);
+                        taskCreator.fileCopyFinished(image.getFile());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -64,14 +65,14 @@ public class FileCopyManager {
             }
         }
 
-        private void copyFile(File sourceFile) throws IOException {
+        private void copyFile(ImageFile image) throws IOException {
             try {
-                Path sourcePath = sourceFile.toPath();
-                File targetFile = new File(taskCreator.getTarget(), sourceFile.getName());
-                Path targetPath = targetFile.toPath();
-                Files.copy(sourcePath, targetPath);
+                File targetFile = new File(taskCreator.getTarget(), image.getFile().getName());
+                ImageIO.write(image.getImage(), "jpg", targetFile);
             } catch (FileAlreadyExistsException e) {
                 System.out.println("File already exists. Skip.");
+            } catch (ImagingException e) {
+                e.printStackTrace();
             }
         }
     }
