@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 import java.io.File;
 import java.io.IOException;
 
@@ -104,8 +105,18 @@ public class ImageUtils {
 
     private static BufferedImage transformImage(BufferedImage image, AffineTransform transform) throws Exception {
         AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BICUBIC);
-        BufferedImage destinationImage = op.createCompatibleDestImage(image, (image.getType() == BufferedImage.TYPE_BYTE_GRAY) ? image.getColorModel() : null);
+        BufferedImage destinationImage = op.createCompatibleDestImage(image, ColorModel.getRGBdefault());
         destinationImage = op.filter(image, destinationImage);
-        return destinationImage;
+
+
+        int width = destinationImage.getWidth();
+        int height = destinationImage.getHeight();
+        final int imageType = BufferedImage.TYPE_INT_RGB;
+
+        BufferedImage rgbBufferedImage = new BufferedImage(width, height, imageType);
+        Graphics2D graphics = rgbBufferedImage.createGraphics();
+        graphics.drawImage(destinationImage, 0, 0, null);
+        graphics.dispose();
+        return rgbBufferedImage;
     }
 }
