@@ -50,6 +50,9 @@ public class MainUiController implements Initializable, CopyTaskCreator {
     public Label lbOutput;
 
     @FXML
+    public Label lbSource;
+
+    @FXML
     private ImageView imageview;
 
     @FXML
@@ -107,15 +110,26 @@ public class MainUiController implements Initializable, CopyTaskCreator {
         actionEvent.consume();
     }
 
-    void init(File directory) {
-        File[] images = directory.listFiles(new ImageFileFilter());
-        if (images == null || images.length < 1) {
-            throw new IllegalArgumentException("Directory contains no images.");
-        } else {
-            imageLoader = new ImageLoader(images);
-            updateImage();
+    public void sourceAction(ActionEvent event) {
+        DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setTitle("Set source directory");
+
+        File sourceDir = dirChooser.showDialog(lbOutput.getScene().getWindow());
+        String labelString = "-";
+        if (sourceDir != null) {
+            labelString = sourceDir.getAbsolutePath();
+            File[] images = sourceDir.listFiles(new ImageFileFilter());
+            if (images == null || images.length < 1) {
+                throw new IllegalArgumentException("Directory contains no images.");
+            } else {
+                imageLoader = new ImageLoader(images);
+                updateImage();
+            }
+            System.out.println("set");
         }
-        System.out.println("set");
+        lbSource.setText(labelString);
+
+        event.consume();
     }
 
     @Override

@@ -32,18 +32,21 @@
             <RowConstraints vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Button fx:id="btCopy" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#copyAction" prefHeight="31.0" prefWidth="114.0" text="Copy" GridPane.rowIndex="1" />
-            <Button fx:id="btOutput" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#outputAction" text="Output" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label fx:id="lbOutput" maxWidth="1.7976931348623157E308" text="Label" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" />
+            <Button fx:id="btCopy" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#copyAction" prefHeight="31.0" prefWidth="114.0" text="Copy" GridPane.rowIndex="1" GridPane.rowSpan="2" />
+            <Button fx:id="btSource" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#sourceAction" text="Source" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label fx:id="lbSource" maxWidth="1.7976931348623157E308" text="Label" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" />
             <Separator prefWidth="200.0" GridPane.columnSpan="2147483647" />
-            <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="2">
+            <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="3">
                <children>
                   <Label fx:id="lbProgress" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Label" />
                </children>
             </HBox>
-            <ProgressBar fx:id="progressbar" maxWidth="1.7976931348623157E308" prefWidth="200.0" progress="1.0" GridPane.columnSpan="3" GridPane.rowIndex="2" />
+            <ProgressBar fx:id="progressbar" maxWidth="1.7976931348623157E308" prefWidth="200.0" progress="1.0" GridPane.columnSpan="3" GridPane.rowIndex="3" />
+            <Button fx:id="btOutput" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#outputAction" text="Output" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label fx:id="lbOutput" maxWidth="1.7976931348623157E308" text="Label" GridPane.columnIndex="2" GridPane.rowIndex="2" />
          </children>
          <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
