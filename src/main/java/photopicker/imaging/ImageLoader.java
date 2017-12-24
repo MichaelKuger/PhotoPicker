@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 public class ImageLoader implements ImageProvider {
 
-    private static final int LOOK_AHEAD = 3;
     private final ImageCache cache = new ImageCache();
     private final List<ImageFile> images;
     private int current = 0;
