@@ -6,10 +6,11 @@ import java.io.File;
 public class ImageFile {
 
     private final File file;
-    private BufferedImage image;
+    private final ImageProvider provider;
 
-    public ImageFile(File file) {
+    ImageFile(File file, ImageProvider provider) {
         this.file = file;
+        this.provider = provider;
     }
 
     public File getFile() {
@@ -17,10 +18,7 @@ public class ImageFile {
     }
 
     public BufferedImage getImage() throws ImagingException {
-        if (image == null) {
-            image = ImageUtils.loadImage(file);
-        }
-        return image;
+        return provider.load(file);
     }
 
     @Override

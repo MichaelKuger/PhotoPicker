@@ -7,6 +7,7 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.jpeg.JpegDirectory;
+import org.apache.commons.lang3.time.StopWatch;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -36,13 +37,25 @@ public class ImageUtils {
 
     static BufferedImage loadImage(File f) throws ImagingException {
         try {
+            StopWatch watch = StopWatch.createStarted();
             BufferedImage image = ImageIO.read(f);
+            printTime("reading image from FS", watch);
             ImageInformation imageInformation = readImageInformation(f);
+            printTime("reading EXIF info", watch);
             AffineTransform transform = getExifTransformation(imageInformation);
-            return transformImage(image, transform);
+            BufferedImage result = transformImage(image, transform);
+            watch.stop();
+            System.out.println("Loading finished. Took: " + watch.getTime());
+            return result;
         } catch (Exception e) {
             throw new ImagingException("Could not load image.", e);
         }
+    }
+
+    private static void printTime(String message, StopWatch stopWatch) {
+        stopWatch.split();
+        System.out.println("[" + stopWatch.hashCode() + "]: after " + message + ": " + stopWatch.getTime());
+        stopWatch.unsplit();
     }
 
 
@@ -60,7 +73,8 @@ public class ImageUtils {
         int width = jpegDirectory.getImageWidth();
         int height = jpegDirectory.getImageHeight();
 
-        return new ImageInformation(orientation, width, height);
+        ImageInformation info = new ImageInformation(orientation, width, height);
+        return info;
     }
 
     private static AffineTransform getExifTransformation(ImageInformation info) {
@@ -104,10 +118,12 @@ public class ImageUtils {
     }
 
     private static BufferedImage transformImage(BufferedImage image, AffineTransform transform) throws Exception {
+        StopWatch watch = StopWatch.createStarted();
         AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BICUBIC);
         BufferedImage destinationImage = op.createCompatibleDestImage(image, ColorModel.getRGBdefault());
+        printTime("creating target image", watch);
         destinationImage = op.filter(image, destinationImage);
-
+        printTime("performing filter", watch);
 
         int width = destinationImage.getWidth();
         int height = destinationImage.getHeight();
@@ -117,6 +133,8 @@ public class ImageUtils {
         Graphics2D graphics = rgbBufferedImage.createGraphics();
         graphics.drawImage(destinationImage, 0, 0, null);
         graphics.dispose();
+        printTime("cloning image", watch);
+        watch.stop();
         return rgbBufferedImage;
     }
 }

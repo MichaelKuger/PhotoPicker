@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -20,6 +21,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
+import org.apache.commons.lang3.time.StopWatch;
 import photopicker.copy.FileCopyManager;
 import photopicker.imaging.ImageLoader;
 import photopicker.imaging.ImagingException;
@@ -34,7 +36,6 @@ public class MainUiController implements Initializable, CopyTaskCreator {
     private static final KeyCombination KEY_PREV_COMBINATION = new KeyCodeCombination(KeyCode.LEFT);
     private static final KeyCombination KEY_COPY_COMBINATION = new KeyCodeCombination(KeyCode.C);
 
-    private int counter;
     private File outputDirectory;
     private int filesToCopy = 0;
     private int filesCopied = 0;
@@ -42,6 +43,12 @@ public class MainUiController implements Initializable, CopyTaskCreator {
     private SimpleDoubleProperty filesCopiedProperty = new SimpleDoubleProperty(filesCopied);
     private FileCopyManager fileCopyWorker = new FileCopyManager(this);
     private ImageLoader imageLoader;
+
+    @FXML
+    public TextField lbResizeY;
+
+    @FXML
+    public TextField lbResizeX;
 
     @FXML
     public Label lbProgress;
@@ -67,10 +74,7 @@ public class MainUiController implements Initializable, CopyTaskCreator {
     }
 
     private void prev() {
-        counter--;
-        if (counter < 0) {
-            counter = imageLoader.size() - 1;
-        }
+        imageLoader.previous();
         updateImage();
     }
 
@@ -80,17 +84,17 @@ public class MainUiController implements Initializable, CopyTaskCreator {
     }
 
     private void next() {
-        counter++;
-        if (counter >= imageLoader.size()) {
-            counter = 0;
-        }
+        imageLoader.next();
         updateImage();
     }
 
     private void updateImage() {
         try {
-            Image image = SwingFXUtils.toFXImage(imageLoader.imageAt(counter).getImage(), null);
+            StopWatch watch = StopWatch.createStarted();
+            Image image = SwingFXUtils.toFXImage(imageLoader.current().getImage(), null);
             imageview.setImage(image);
+            watch.stop();
+            System.out.println("Updating image in UI took " + watch.getTime());
         } catch (ImagingException e) {
             e.printStackTrace();
         }
@@ -149,17 +153,13 @@ public class MainUiController implements Initializable, CopyTaskCreator {
     }
 
     public void copy() {
-        try {
-            if (outputDirectory == null) {
-                System.out.println("OutputDirectory is null.");
-                return;
-            }
-            fileCopyWorker.add(imageLoader.imageAt(counter));
-            filesToCopy++;
-            filesToCopyProperty.set(filesToCopy);
-        } catch (ImagingException e) {
-            e.printStackTrace();
+        if (outputDirectory == null) {
+            System.out.println("OutputDirectory is null.");
+            return;
         }
+        fileCopyWorker.add(imageLoader.current());
+        filesToCopy++;
+        filesToCopyProperty.set(filesToCopy);
     }
 
     public void fileCopyFinished(File file) {
