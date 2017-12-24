@@ -19,6 +19,10 @@ import java.io.File;
 import java.io.IOException;
 
 public class ImageUtils {
+
+    private static final double TARGET_WIDTH = 1024d;
+    private static final double TARGET_HEIGHT = 768d;
+
     public static class ImageInformation {
         final int orientation;
         final int width;
@@ -42,7 +46,7 @@ public class ImageUtils {
             printTime("reading image from FS", watch);
             ImageInformation imageInformation = readImageInformation(f);
             printTime("reading EXIF info", watch);
-            AffineTransform transform = getExifTransformation(imageInformation);
+            AffineTransform transform = getTransformation(imageInformation);
             BufferedImage result = transformImage(image, transform);
             watch.stop();
             System.out.println("Loading finished. Took: " + watch.getTime());
@@ -77,44 +81,68 @@ public class ImageUtils {
         return info;
     }
 
-    private static AffineTransform getExifTransformation(ImageInformation info) {
+    private static AffineTransform getTransformation(ImageInformation info) {
         AffineTransform t = new AffineTransform();
-
+        System.out.println("image orientation is " + info.orientation);
+        double scale = 1.0;
         switch (info.orientation) {
             case 1:
+                scale = scaleFactor(info.width, info.height);
+                t.scale(scale, scale);
                 break;
             case 2: // Flip X
-                t.scale(-1.0, 1.0);
+                scale = scaleFactor(info.width, info.height);
+                t.scale(-1.0 * scale, 1.0 * scale);
                 t.translate(-info.width, 0);
                 break;
             case 3: // PI rotation
-                t.translate(info.width, info.height);
+                scale = scaleFactor(info.width, info.height);
+                t.translate(info.width, scale);
                 t.rotate(Math.PI);
                 break;
             case 4: // Flip Y
-                t.scale(1.0, -1.0);
+                scale = scaleFactor(info.width, info.height);
+                t.scale(1.0 * scale, -1.0 * scale);
                 t.translate(0, -info.height);
                 break;
             case 5: // - PI/2 and Flip X
-                t.rotate(-Math.PI / 2);
-                t.scale(-1.0, 1.0);
+                scale = scaleFactor(info.height, info.width);
+                t.rotate(-Math.PI / 2d);
+                t.scale(-1.0 / scale, 1.0 * scale);
                 break;
             case 6: // -PI/2 and -width
+                scale = scaleFactor(info.height, info.width);
                 t.translate(info.height, 0);
                 t.rotate(Math.PI / 2);
+                t.scale(scale, scale);
                 break;
             case 7: // PI/2 and Flip
-                t.scale(-1.0, 1.0);
+                scale = scaleFactor(info.width, info.height);
+                t.scale(-1.0 * scale, 1.0 * scale);
                 t.translate(-info.height, 0);
                 t.translate(0, info.width);
                 t.rotate(3 * Math.PI / 2);
                 break;
             case 8: // PI / 2
+                scale = scaleFactor(info.height, info.width);
+                t.scale(scale, scale);
                 t.translate(0, info.width);
                 t.rotate(3 * Math.PI / 2);
+                System.out.println(3d * Math.PI / 2d);
                 break;
         }
         return t;
+    }
+
+    static double scaleFactor(int sourceX, int sourceY) {
+        double widthFactor = TARGET_WIDTH / sourceX;
+        double heightFactor = TARGET_HEIGHT / sourceY;
+        double scaleFactor = heightFactor;
+        if (widthFactor < heightFactor) {
+            scaleFactor = widthFactor;
+        }
+        System.out.println("Scale factor is: " + scaleFactor);
+        return scaleFactor;
     }
 
     private static BufferedImage transformImage(BufferedImage image, AffineTransform transform) throws Exception {
