@@ -111,10 +111,10 @@ public class ImageUtils {
                 t.scale(-1.0 / scale, 1.0 * scale);
                 break;
             case 6: // -PI/2 and -width
-                scale = scaleFactor(info.height, info.width);
+                scale = scaleFactor(info.width, info.height);
+                t.scale(scale, scale);
                 t.translate(info.height, 0);
                 t.rotate(Math.PI / 2);
-                t.scale(scale, scale);
                 break;
             case 7: // PI/2 and Flip
                 scale = scaleFactor(info.width, info.height);
