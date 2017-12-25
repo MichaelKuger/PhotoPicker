@@ -45,11 +45,10 @@ class ImageUtils {
             BufferedImage image = ImageIO.read(f);
             printTime("reading image from FS", watch);
             ImageInformation imageInformation = readImageInformation(f);
-            printTime("reading EXIF info", watch);
             AffineTransform transform = getTransformation(imageInformation);
             BufferedImage result = transformImage(image, transform);
             watch.stop();
-            System.out.println("Loading finished. Took: " + watch.getTime());
+            System.out.println("Loading "+f.getName()+" finished. Took: " + watch.getTime());
             return result;
         } catch (Exception e) {
             throw new ImagingException("Could not load image.", e);
@@ -127,7 +126,6 @@ class ImageUtils {
                 t.scale(scale, scale);
                 t.translate(0, info.width);
                 t.rotate(3 * Math.PI / 2);
-                System.out.println(3d * Math.PI / 2d);
                 break;
         }
         return t;
@@ -145,12 +143,9 @@ class ImageUtils {
     }
 
     private static BufferedImage transformImage(BufferedImage image, AffineTransform transform) throws Exception {
-        StopWatch watch = StopWatch.createStarted();
         AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BICUBIC);
         BufferedImage destinationImage = op.createCompatibleDestImage(image, ColorModel.getRGBdefault());
-        printTime("creating target image", watch);
         destinationImage = op.filter(image, destinationImage);
-        printTime("performing filter", watch);
 
         int width = destinationImage.getWidth();
         int height = destinationImage.getHeight();
@@ -160,8 +155,6 @@ class ImageUtils {
         Graphics2D graphics = rgbBufferedImage.createGraphics();
         graphics.drawImage(destinationImage, 0, 0, null);
         graphics.dispose();
-        printTime("cloning image", watch);
-        watch.stop();
         return rgbBufferedImage;
     }
 }
