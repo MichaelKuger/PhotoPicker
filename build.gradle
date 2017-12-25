@@ -15,6 +15,7 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-imaging', version: '1.0-SNAPSHOT'
     compile group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.10.1'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
+    compile group: 'com.google.guava', name: 'guava', version: '23.6-jre'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

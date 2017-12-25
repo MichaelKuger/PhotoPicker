@@ -1,44 +1,34 @@
 package photopicker.imaging;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.LinkedList;
+import java.util.concurrent.ExecutionException;
 
 class ImageCache {
 
-    private static final int CACHE_SIZE = 5;
-    private final LinkedList<ImageContainer> images = new LinkedList<>();
+    LoadingCache<File, BufferedImage> images = CacheBuilder
+            .newBuilder()
+            .maximumSize(50)
+            .softValues()
+            .build(
+                    new CacheLoader<File, BufferedImage>() {
+                        @Override
+                        public BufferedImage load(File file) throws ImagingException {
+                            System.out.println("Loading file " + file.getName());
+                            return ImageUtils.loadImage(file);
+                        }
+                    }
+            );
 
-    BufferedImage get(File file) throws ImagingException {
-        synchronized (this) {
-            for (ImageContainer container : images) {
-                if (container.file.equals(file)) {
-                    System.out.println("Serving image from cache!");
-                    return container.image;
-                }
-            }
-        }
-        System.out.println("Cache miss. Loading...");
-        BufferedImage image = ImageUtils.loadImage(file);
-        ImageContainer container = new ImageContainer(file, image);
-        put(container);
-        return image;
-    }
-
-    private synchronized void put(ImageContainer container) {
-        images.addFirst(container);
-        if (images.size() > CACHE_SIZE) {
-            images.removeLast();
-        }
-    }
-
-    private class ImageContainer {
-        private final File file;
-        private final BufferedImage image;
-
-        ImageContainer(File file, BufferedImage image) {
-            this.file = file;
-            this.image = image;
+    BufferedImage get(File file) {
+        try {
+            return images.get(file);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
         }
     }
 }
