@@ -20,6 +20,21 @@ public class ImageLoader implements ImageProvider {
         return images.get(current);
     }
 
+    public ImageFile next() {
+        current = increase(current);
+        return current();
+    }
+
+    public ImageFile previous() {
+        current = decrease(current);
+        return current();
+    }
+
+    @Override
+    public BufferedImage load(File f) throws ImagingException {
+        return cache.get(f);
+    }
+
     private int increase(int i) {
         i++;
         if (i >= images.size()) {
@@ -34,20 +49,5 @@ public class ImageLoader implements ImageProvider {
             i = images.size() - 1;
         }
         return i;
-    }
-
-    public ImageFile next() {
-        current = increase(current);
-        return current();
-    }
-
-    public ImageFile previous() {
-        current = decrease(current);
-        return current();
-    }
-
-    @Override
-    public BufferedImage load(File f) throws ImagingException {
-        return cache.get(f);
     }
 }
