@@ -50,8 +50,8 @@ public class ImageLoader implements ImageProvider {
     private void preload(Collection<ImageFile> images) {
         pool.submit(() -> images
                 .parallelStream()
-                .forEach(f -> pool.submit(
-                        () -> cache.get(f.getFile())
+                .forEach(f ->
+                        pool.submit(() -> cache.get(f.getFile())
                         )
                 )
         );
