@@ -6,6 +6,7 @@ import javafx.beans.binding.NumberBinding;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -23,6 +24,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import org.apache.commons.lang3.time.StopWatch;
 import photopicker.copy.FileCopyManager;
+import photopicker.imaging.ImageFile;
 import photopicker.imaging.ImageLoader;
 import photopicker.imaging.ImagingException;
 
@@ -68,6 +70,8 @@ public class MainUiController implements Initializable, CopyTaskCreator {
     @FXML
     private Pane imagepane;
 
+    private StringProperty titleProperty;
+
     public void prevAction(ActionEvent actionEvent) {
         prev();
         actionEvent.consume();
@@ -91,9 +95,11 @@ public class MainUiController implements Initializable, CopyTaskCreator {
     private void updateImage() {
         try {
             StopWatch watch = StopWatch.createStarted();
-            Image image = SwingFXUtils.toFXImage(imageLoader.current().getImage(), null);
+            ImageFile imageFile = imageLoader.current();
+            Image image = SwingFXUtils.toFXImage(imageFile.getImage(), null);
             imageview.setImage(image);
             watch.stop();
+            titleProperty.setValue(imageFile.getFile().getName() + " - PhotoPicker");
             System.out.println("Updating image in UI took " + watch.getTime());
         } catch (ImagingException e) {
             e.printStackTrace();
@@ -188,7 +194,11 @@ public class MainUiController implements Initializable, CopyTaskCreator {
         return outputDirectory;
     }
 
-    public boolean readyForShutdown() {
+    boolean readyForShutdown() {
         return fileCopyWorker.isReadyForShutdown();
+    }
+
+    void setTitleProperty(StringProperty titleProperty) {
+        this.titleProperty = titleProperty;
     }
 }

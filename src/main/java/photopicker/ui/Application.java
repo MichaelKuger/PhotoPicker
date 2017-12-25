@@ -17,14 +17,10 @@ public class Application extends javafx.application.Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-//        DirectoryChooser chooser = new DirectoryChooser();
-//        chooser.setTitle("Choose project");
-//        File selectedDirectory = chooser.showDialog(primaryStage);
-
-
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/mainui.fxml"));
             Parent root = loader.load();
             final MainUiController ctrl = loader.getController();
+            ctrl.setTitleProperty(primaryStage.titleProperty());
             primaryStage.setTitle("PhotoPicker");
             primaryStage.setScene(new Scene(root));
             primaryStage.show();
