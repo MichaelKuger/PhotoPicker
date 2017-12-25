@@ -8,59 +8,41 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveAction;
 
 public class FileCopyManager {
 
-    private final Set<File> filesCopied = new HashSet<File>();
-    private final LinkedBlockingQueue<ImageFile> copyQueue = new LinkedBlockingQueue<>();
     private final CopyTaskCreator taskCreator;
-    private final FileCopyWorker copyWorker = new FileCopyWorker();
+    private final ForkJoinPool pool = ForkJoinPool.commonPool();
 
     public FileCopyManager(CopyTaskCreator taskCreator) {
         this.taskCreator = taskCreator;
-        copyWorker.start();
     }
 
     public void add(ImageFile image) {
-        try {
-            if (filesCopied.contains(image.getFile())) {
-                taskCreator.fileCopyFinished(image.getFile());
-                return;
-            }
-            copyQueue.put(image);
-            filesCopied.add(image.getFile());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        FileCopyTask task = new FileCopyTask(image);
+        pool.submit(task);
     }
 
     public boolean isReadyForShutdown() {
-        return copyQueue.isEmpty();
+        return pool.getQueuedTaskCount() == 0;
     }
 
-    private class FileCopyWorker extends Thread {
-        private FileCopyWorker() {
-            super("FileCopyWorker");
-            setDaemon(true);
+    private class FileCopyTask extends RecursiveAction {
+
+        private final ImageFile image;
+
+        private FileCopyTask(ImageFile image) {
+            this.image = image;
         }
 
         @Override
-        public void run() {
+        protected void compute() {
             try {
-                while (!interrupted()) {
-                    try {
-                        ImageFile image = copyQueue.take();
-                        copyFile(image);
-                        System.out.println("Finished!");
-                        taskCreator.fileCopyFinished(image.getFile());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } catch (InterruptedException e) {
+                copyFile(image);
+                taskCreator.fileCopyFinished(image.getFile());
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
