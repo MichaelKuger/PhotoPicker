@@ -27,7 +27,7 @@ public class ImageLoader implements ImageProvider {
 
     public ImageFile next() {
         current = increase(current);
-        List imagesToLoad = new ArrayList(PRELOAD_SIZE);
+        List<ImageFile> imagesToLoad = new ArrayList<>(PRELOAD_SIZE);
         for (int i = 1; i <= PRELOAD_SIZE; i++) {
             int counter = increase(current + i);
             imagesToLoad.add(images.get(counter));
@@ -38,7 +38,7 @@ public class ImageLoader implements ImageProvider {
 
     public ImageFile previous() {
         current = decrease(current);
-        List imagesToLoad = new ArrayList(PRELOAD_SIZE);
+        List<ImageFile> imagesToLoad = new ArrayList<>(PRELOAD_SIZE);
         for (int i = 1; i <= PRELOAD_SIZE; i++) {
             int counter = decrease(current - i);
             imagesToLoad.add(images.get(counter));
@@ -50,10 +50,9 @@ public class ImageLoader implements ImageProvider {
     private void preload(Collection<ImageFile> images) {
         pool.submit(() -> images
                 .parallelStream()
-                .forEach(f ->
-                        pool.submit(() -> {
-                            cache.get(f.getFile());
-                        })
+                .forEach(f -> pool.submit(
+                        () -> cache.get(f.getFile())
+                        )
                 )
         );
     }

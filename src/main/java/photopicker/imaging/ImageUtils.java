@@ -18,12 +18,12 @@ import java.awt.image.ColorModel;
 import java.io.File;
 import java.io.IOException;
 
-public class ImageUtils {
+class ImageUtils {
 
     private static final double TARGET_WIDTH = 1024d;
     private static final double TARGET_HEIGHT = 768d;
 
-    public static class ImageInformation {
+    static class ImageInformation {
         final int orientation;
         final int width;
         final int height;
@@ -77,8 +77,7 @@ public class ImageUtils {
         int width = jpegDirectory.getImageWidth();
         int height = jpegDirectory.getImageHeight();
 
-        ImageInformation info = new ImageInformation(orientation, width, height);
-        return info;
+        return new ImageInformation(orientation, width, height);
     }
 
     private static AffineTransform getTransformation(ImageInformation info) {
@@ -134,7 +133,7 @@ public class ImageUtils {
         return t;
     }
 
-    static double scaleFactor(int sourceX, int sourceY) {
+    private static double scaleFactor(int sourceX, int sourceY) {
         double widthFactor = TARGET_WIDTH / sourceX;
         double heightFactor = TARGET_HEIGHT / sourceY;
         double scaleFactor = heightFactor;

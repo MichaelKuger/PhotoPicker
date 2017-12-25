@@ -158,7 +158,7 @@ public class MainUiController implements Initializable, CopyTaskCreator {
         actionEvent.consume();
     }
 
-    public void copy() {
+    private void copy() {
         if (outputDirectory == null) {
             System.out.println("OutputDirectory is null.");
             return;
