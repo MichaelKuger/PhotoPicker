@@ -2,12 +2,17 @@ package photopicker.imaging;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 public class ImageLoader implements ImageProvider {
 
+    private static final int PRELOAD_SIZE = 15;
+    private final ForkJoinPool pool = ForkJoinPool.commonPool();
     private final ImageCache cache = new ImageCache();
     private final List<ImageFile> images;
     private int current = 0;
@@ -22,12 +27,35 @@ public class ImageLoader implements ImageProvider {
 
     public ImageFile next() {
         current = increase(current);
+        List imagesToLoad = new ArrayList(PRELOAD_SIZE);
+        for (int i = 1; i <= PRELOAD_SIZE; i++) {
+            int counter = increase(current + i);
+            imagesToLoad.add(images.get(counter));
+        }
+        preload(imagesToLoad);
         return current();
     }
 
     public ImageFile previous() {
         current = decrease(current);
+        List imagesToLoad = new ArrayList(PRELOAD_SIZE);
+        for (int i = 1; i <= PRELOAD_SIZE; i++) {
+            int counter = decrease(current - i);
+            imagesToLoad.add(images.get(counter));
+        }
+        preload(imagesToLoad);
         return current();
+    }
+
+    private void preload(Collection<ImageFile> images) {
+        pool.submit(() -> images
+                .parallelStream()
+                .forEach(f ->
+                        pool.submit(() -> {
+                            cache.get(f.getFile());
+                        })
+                )
+        );
     }
 
     @Override
