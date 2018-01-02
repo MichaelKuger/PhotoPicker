@@ -93,8 +93,8 @@ public class ConfigController implements Initializable {
     public boolean showCloseConfigDialog() {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Close application?");
-        alert.setHeaderText("Operation in progress");
-        alert.setContentText("File copy operation in progress. Sure?");
+        alert.setHeaderText("Config not valid");
+        alert.setContentText("Config is not valid. Sure you want to exit?");
 
         ButtonType buttonYes = new ButtonType("Yes, please close");
         ButtonType buttonNo = new ButtonType("No");
