@@ -1,5 +1,8 @@
 package photopicker.imaging;
 
+import com.google.common.cache.CacheLoader;
+import photopicker.config.ImageConfig;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -13,12 +16,20 @@ public class ImageLoader implements ImageProvider {
 
     private static final int PRELOAD_SIZE = 15;
     private final ForkJoinPool pool = ForkJoinPool.commonPool();
-    private final ImageCache cache = new ImageCache();
+    private final ImageCache cache;
     private final List<ImageFile> images;
     private int current = 0;
 
-    public ImageLoader(File[] imageFiles) {
+    public ImageLoader(File[] imageFiles, ImageConfig config) {
         images = Arrays.stream(imageFiles).map(f -> new ImageFile(f, this)).collect(Collectors.toList());
+        CacheLoader loader = new CacheLoader<File, BufferedImage>() {
+            @Override
+            public BufferedImage load(File file) throws ImagingException {
+                System.out.println("Loading file " + file.getName());
+                return ImageUtils.loadImage(file, config);
+            }
+        };
+        cache = new ImageCache(loader);
     }
 
     public ImageFile current() {

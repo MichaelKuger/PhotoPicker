@@ -1,6 +1,7 @@
 package photopicker.imaging;
 
 import org.junit.Test;
+import photopicker.config.ImageConfig;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -13,10 +14,12 @@ import static org.junit.Assert.assertEquals;
 
 public class ImageTest {
 
+    private ImageConfig config = new ImageConfig(1024, 768);
+
     @Test
     public void testLandscapeMode() throws URISyntaxException, ImagingException, IOException {
         File imageFile = getFile("SAM_3977.JPG");
-        BufferedImage image = ImageUtils.loadImage(imageFile);
+        BufferedImage image = ImageUtils.loadImage(imageFile, config);
         assertEquals(1024, image.getWidth());
         assertEquals(683, image.getHeight());
         writeImage(image);
@@ -25,7 +28,7 @@ public class ImageTest {
     @Test
     public void testPortraitMode() throws IOException, URISyntaxException, ImagingException {
         File imageFile = getFile("SAM_3990.JPG");
-        BufferedImage image = ImageUtils.loadImage(imageFile);
+        BufferedImage image = ImageUtils.loadImage(imageFile, config);
         assertEquals(512, image.getWidth());
         assertEquals(768, image.getHeight());
         writeImage(image);

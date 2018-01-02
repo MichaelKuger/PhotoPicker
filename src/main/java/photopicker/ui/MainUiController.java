@@ -23,6 +23,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import org.apache.commons.lang3.time.StopWatch;
+import photopicker.config.PhotoPickerConfig;
 import photopicker.copy.FileCopyManager;
 import photopicker.imaging.ImageFile;
 import photopicker.imaging.ImageLoader;
@@ -38,13 +39,15 @@ public class MainUiController implements Initializable, CopyTaskCreator {
     private static final KeyCombination KEY_PREV_COMBINATION = new KeyCodeCombination(KeyCode.LEFT);
     private static final KeyCombination KEY_COPY_COMBINATION = new KeyCodeCombination(KeyCode.C);
 
-    private File outputDirectory;
+    private File targetDir;
     private int filesToCopy = 0;
     private int filesCopied = 0;
     private SimpleDoubleProperty filesToCopyProperty = new SimpleDoubleProperty(filesToCopy);
     private SimpleDoubleProperty filesCopiedProperty = new SimpleDoubleProperty(filesCopied);
     private FileCopyManager fileCopyWorker = new FileCopyManager(this);
     private ImageLoader imageLoader;
+    private PhotoPickerConfig config;
+    private StringProperty titleProperty;
 
     @FXML
     public TextField lbResizeY;
@@ -56,7 +59,7 @@ public class MainUiController implements Initializable, CopyTaskCreator {
     public Label lbProgress;
 
     @FXML
-    public Label lbOutput;
+    public Label lbTarget;
 
     @FXML
     public Label lbSource;
@@ -70,7 +73,6 @@ public class MainUiController implements Initializable, CopyTaskCreator {
     @FXML
     private Pane imagepane;
 
-    private StringProperty titleProperty;
 
     public void prevAction(ActionEvent actionEvent) {
         prev();
@@ -110,12 +112,12 @@ public class MainUiController implements Initializable, CopyTaskCreator {
         DirectoryChooser dirChooser = new DirectoryChooser();
         dirChooser.setTitle("Choose output directory");
 
-        outputDirectory = dirChooser.showDialog(lbOutput.getScene().getWindow());
+        targetDir = dirChooser.showDialog(lbTarget.getScene().getWindow());
         String labelString = "-";
-        if (outputDirectory != null) {
-            labelString = outputDirectory.getAbsolutePath();
+        if (targetDir != null) {
+            labelString = targetDir.getAbsolutePath();
         }
-        lbOutput.setText(labelString);
+        lbTarget.setText(labelString);
 
         actionEvent.consume();
     }
@@ -124,17 +126,11 @@ public class MainUiController implements Initializable, CopyTaskCreator {
         DirectoryChooser dirChooser = new DirectoryChooser();
         dirChooser.setTitle("Set source directory");
 
-        File sourceDir = dirChooser.showDialog(lbOutput.getScene().getWindow());
+        File sourceDir = dirChooser.showDialog(lbTarget.getScene().getWindow());
         String labelString = "-";
         if (sourceDir != null) {
             labelString = sourceDir.getAbsolutePath();
-            File[] images = sourceDir.listFiles(new ImageFileFilter());
-            if (images == null || images.length < 1) {
-                throw new IllegalArgumentException("Directory contains no images.");
-            } else {
-                imageLoader = new ImageLoader(images);
-                updateImage();
-            }
+
             System.out.println("set");
         }
         lbSource.setText(labelString);
@@ -159,7 +155,7 @@ public class MainUiController implements Initializable, CopyTaskCreator {
     }
 
     private void copy() {
-        if (outputDirectory == null) {
+        if (targetDir == null) {
             System.out.println("OutputDirectory is null.");
             return;
         }
@@ -191,7 +187,7 @@ public class MainUiController implements Initializable, CopyTaskCreator {
 
     @Override
     public File getTarget() {
-        return outputDirectory;
+        return targetDir;
     }
 
     boolean readyForShutdown() {
@@ -200,5 +196,19 @@ public class MainUiController implements Initializable, CopyTaskCreator {
 
     void setTitleProperty(StringProperty titleProperty) {
         this.titleProperty = titleProperty;
+    }
+
+    public void setConfig(PhotoPickerConfig config) {
+        this.config = config;
+        targetDir = config.getTargetDir();
+        File[] images = config.getSourceDir().listFiles(new ImageFileFilter());
+        if (images == null || images.length < 1) {
+            throw new IllegalArgumentException("Directory contains no images.");
+        } else {
+            imageLoader = new ImageLoader(images, config.getImageConfig());
+            updateImage();
+        }
+        lbSource.setText(config.getSourceDir().getAbsolutePath());
+        lbTarget.setText(config.getTargetDir().getAbsolutePath());
     }
 }

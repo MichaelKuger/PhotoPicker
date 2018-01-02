@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Pane?>
+
+<GridPane hgap="5.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="328.0" prefWidth="495.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="photopicker.ui.config.ConfigController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+        <ColumnConstraints hgrow="NEVER" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+    </rowConstraints>
+    <children>
+      <Label alignment="CENTER_RIGHT" text="Image Folder:" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
+      <TextField fx:id="lbSource" onInputMethodTextChanged="#textChanged" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      <Button mnemonicParsing="false" onAction="#selectSource" text="..." GridPane.columnIndex="2" GridPane.rowIndex="1" />
+      <Label text="Target Folder:" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+      <Button mnemonicParsing="false" onAction="#selectTarget" text="..." GridPane.columnIndex="2" GridPane.rowIndex="2" />
+      <TextField fx:id="lbTarget" onInputMethodTextChanged="#textChanged" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+      <Label text="Width:" GridPane.halignment="RIGHT" GridPane.rowIndex="4" />
+      <Label text="Height:" GridPane.halignment="RIGHT" GridPane.rowIndex="5" />
+      <TextField fx:id="lbWidth" onInputMethodTextChanged="#textChanged" prefWidth="50.0" text="1024" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+      <TextField fx:id="lbHeight" onInputMethodTextChanged="#textChanged" prefWidth="50.0" text="768" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+      <HBox alignment="CENTER_LEFT" GridPane.columnSpan="3" GridPane.halignment="LEFT" GridPane.valignment="CENTER" GridPane.vgrow="NEVER">
+         <children>
+            <Label text="Folders">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+               <padding>
+                  <Insets right="10.0" />
+               </padding></Label>
+            <Separator HBox.hgrow="ALWAYS" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnSpan="3" GridPane.rowIndex="3">
+         <children>
+            <Label text="Image Resolution">
+               <padding>
+                  <Insets right="10.0" />
+               </padding>
+            </Label>
+            <Separator prefWidth="200.0" HBox.hgrow="ALWAYS" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" GridPane.columnSpan="3" GridPane.rowIndex="6">
+         <children>
+            <Button mnemonicParsing="false" onAction="#saveConfig" text="OK">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </Button>
+         </children>
+      </HBox>
+    </children>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+</GridPane>
